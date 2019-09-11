@@ -1,0 +1,63 @@
+/**
+ * Copyright 2015-2019 NETCAT (www.netcat.pl)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * @author NETCAT <firma@netcat.pl>
+ * @copyright 2015-2019 NETCAT (www.netcat.pl)
+ * @license http://www.apache.org/licenses/LICENSE-2.0
+ */
+
+package pl.nip24.client;
+
+/**
+ * Weryfikator numeru KRS
+ * @author robert
+ */
+public class KRS {
+
+	/**
+	 * Konwertuje podany numer KRS do postaci znormalizowanej
+	 * @param krs numer KRS w dowolnym formacie
+	 * @return znormalizowany numer KRS
+	 */
+	public static String normalize(String krs)
+	{
+		if (krs == null || krs.length() == 0) {
+			return null;
+		}
+
+		krs = krs.trim();
+		krs = String.format("%010d", Integer.parseInt(krs));
+
+		if (!krs.matches("[0-9]{10}")) {
+			return null;
+		}
+		
+		return krs;
+	}
+
+	/**
+	 * Sprawdza poprawność numeru KRS
+	 * @param krs numer KRS
+	 * @return true jeżeli podany numer jest prawidłowy
+	 */
+	public static boolean isValid(String krs)
+	{
+		if ((krs = normalize(krs)) == null) {
+			return false;
+		}
+
+		return true;
+	}
+}
