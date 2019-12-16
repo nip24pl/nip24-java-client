@@ -59,7 +59,7 @@ import org.w3c.dom.Node;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.3.3";
+	public final static String VERSION = "1.3.4";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
@@ -802,6 +802,119 @@ public class NIP24Client {
 	}
 
 	/**
+	 * Sprawdzenie statusu firmy na podstawie pliku białej listy podatników VAT
+	 * @param type typ numeru identyfikującego firmę
+	 * @param number numer określonego typu
+	 * @param iban numer IBAN rachunku do sprawdzenia (polskie rachunki mogą być bez prefiksu PL)
+	 * @param date dzień, którego ma dotyczyć sprawdzenie statusu (null - bieżący dzień)
+	 * @return bieżący status rachunku bankowego lub null w przypadku błędu
+	 */
+	public WLStatus getWhitelistStatus(Number type, String number, String iban, Date date)
+	{
+		try {
+			// clear error
+			err = null;
+
+			// validate number and construct path
+			String suffix = null;
+
+			if ((suffix = getPathSuffix(type, number)) == null) {
+				return null;
+			}
+
+			if (!IBAN.isValid(iban)) {
+				iban = "PL" + iban;
+
+				if (!IBAN.isValid(iban)) {
+					err = "Numer IBAN jest nieprawidłowy";
+					return null;
+				}
+			}
+
+			if (date == null) {
+				date = new Date();
+			}
+
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+			// prepare url
+			String url = (this.url.toString()  + "/check/whitelist/" + suffix + "/" + IBAN.normalize(iban) + "/" + sdf.format(date));
+
+			// prepare request
+			StringBuilder sb = new StringBuilder();
+
+			byte[] b = get(url, sb);
+
+			if (b == null) {
+				err = "Nie udało się nawiązać połączenia z serwisem NIP24";
+				return null;
+			}
+
+			// parse response
+			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
+
+			if (doc == null) {
+				err = "Odpowiedź serwisu NIP24 ma nieprawidłowy format";
+				return null;
+			}
+
+			String res = getString(doc, "/result/error/code", null);
+
+			if (res != null) {
+				err = getString(doc, "/result/error/description", null);
+				return null;
+			}
+
+			WLStatus wl = new WLStatus();
+
+			wl.setUID(getString(doc, "/result/whitelist/uid", null));
+
+			wl.setNIP(getString(doc, "/result/whitelist/nip", null));
+			wl.setIBAN(getString(doc, "/result/whitelist/iban", null));
+
+			wl.setValid(getString(doc, "/result/whitelist/valid", "false").equals("true"));
+			wl.setVirtual(getString(doc, "/result/whitelist/virtual", "false").equals("true"));
+
+			wl.setStatus(Integer.parseInt(getString(doc, "/result/whitelist/vatStatus", "0")));
+			wl.setResult(getString(doc, "/result/whitelist/vatResult", null));
+
+			wl.setHashIndex(Integer.parseInt(getString(doc, "/result/whitelist/hashIndex", "-1")));
+			wl.setMaskIndex(Integer.parseInt(getString(doc, "/result/whitelist/maskIndex", "-1")));
+			wl.setDate(getDate(doc, "/result/whitelist/date"));
+			wl.setSource(getString(doc, "/result/whitelist/source", null));
+
+			return wl;
+		}
+		catch (Exception ignored) {
+		}
+
+		return null;
+	}
+
+	/**
+	 * Sprawdzenie statusu firmy na podstawie pliku białej listy podatników VAT dla bieżącego dnia
+	 * @param type typ numeru identyfikującego firmę
+	 * @param number numer określonego typu
+	 * @param iban numer IBAN rachunku do sprawdzenia (polskie rachunki mogą być bez prefiksu PL)
+	 * @return bieżący status rachunku bankowego lub null w przypadku błędu
+	 */
+	public WLStatus getWhitelistStatus(Number type, String number, String iban)
+	{
+		return getWhitelistStatus(type, number, iban, null);
+	}
+
+	/**
+	 * Sprawdzenie statusu firmy na podstawie pliku białej listy podatników VAT dla bieżącego dnia
+	 * @param nip numer NIP
+	 * @param iban numer IBAN rachunku do sprawdzenia (polskie rachunki mogą być bez prefiksu PL)
+	 * @return bieżący status rachunku bankowego lub null w przypadku błędu
+	 */
+	public WLStatus getWhitelistStatus(String nip, String iban)
+	{
+		return getWhitelistStatus(Number.NIP, nip, iban, null);
+	}
+
+	/**
 	 * Sprawdzenie bieżącego stanu konta użytkownika
 	 * @return status konta lub null w przypadku błędu
 	 */
@@ -850,6 +963,7 @@ public class NIP24Client {
 			status.setItemPriceInvoice(Float.parseFloat(getString(doc, "/result/account/billingPlan/itemPriceInvoiceData", "0")));
 			status.setItemPriceAll(Float.parseFloat(getString(doc, "/result/account/billingPlan/itemPriceAllData", "0")));
 			status.setItemPriceIBAN(Float.parseFloat(getString(doc, "/result/account/billingPlan/itemPriceIBANStatus", "0")));
+			status.setItemPriceWhitelist(Float.parseFloat(getString(doc, "/result/account/billingPlan/itemPriceWLStatus", "0")));
 
 			status.setLimit(Integer.parseInt(getString(doc, "/result/account/billingPlan/limit", "0")));
 			status.setRequestDelay(Integer.parseInt(getString(doc, "/result/account/billingPlan/requestDelay", "0")));
@@ -872,6 +986,7 @@ public class NIP24Client {
 			status.setFuncGetVIESData(getString(doc, "/result/account/billingPlan/funcGetVIESData", "false").equals("true"));
 			status.setFuncGetVATStatus(getString(doc, "/result/account/billingPlan/funcGetVATStatus", "false").equals("true"));
 			status.setFuncGetIBANStatus(getString(doc, "/result/account/billingPlan/funcGetIBANStatus", "false").equals("true"));
+			status.setFuncGetWhitelistStatus(getString(doc, "/result/account/billingPlan/funcGetWLStatus", "false").equals("true"));
 
 			status.setInvoiceDataCount(Integer.parseInt(getString(doc, "/result/account/requests/invoiceData", "0")));
 			status.setAllDataCount(Integer.parseInt(getString(doc, "/result/account/requests/allData", "0")));
@@ -879,6 +994,7 @@ public class NIP24Client {
 			status.setVATStatusCount(Integer.parseInt(getString(doc, "/result/account/requests/vatStatus", "0")));
 			status.setVIESStatusCount(Integer.parseInt(getString(doc, "/result/account/requests/viesStatus", "0")));
 			status.setIBANStatusCount(Integer.parseInt(getString(doc, "/result/account/requests/ibanStatus", "0")));
+			status.setWhitelistStatusCount(Integer.parseInt(getString(doc, "/result/account/requests/wlStatus", "0")));
 			status.setTotalCount(Integer.parseInt(getString(doc, "/result/account/requests/total", "0")));
 			
 			return status;

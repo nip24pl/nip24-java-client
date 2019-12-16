@@ -129,6 +129,16 @@ public class Program {
 			else {
 				System.err.println("Błąd: " + nip24.getLastError());
 			}
+
+			// Wywołanie metody sprawdzającej status podmiotu na białej liście podatników VAT
+			WLStatus whitelist = nip24.getWhitelistStatus(Number.NIP, nip, account_number);
+
+			if (whitelist != null) {
+				System.out.println(whitelist);
+			}
+			else {
+				System.err.println("Błąd: " + nip24.getLastError());
+			}
 		}
 		catch (Exception e) {
 			System.err.println(e.toString());

@@ -36,6 +36,7 @@ public class AccountStatus {
     protected float itemPriceInvoice;
     protected float itemPriceAll;
     protected float itemPriceIBAN;
+	protected float itemPriceWhitelist;
 
     protected int limit;
     protected int requestDelay;
@@ -58,6 +59,7 @@ public class AccountStatus {
     protected boolean funcGetVIESData;
     protected boolean funcGetVATStatus;
 	protected boolean funcGetIBANStatus;
+	protected boolean funcGetWhitelistStatus;
 
     protected int invoiceDataCount;
     protected int allDataCount;
@@ -65,6 +67,7 @@ public class AccountStatus {
     protected int vatStatusCount;
     protected int viesStatusCount;
 	protected int ibanStatusCount;
+	protected int whitelistStatusCount;
     protected int totalCount;
 	
 	/**
@@ -216,6 +219,24 @@ public class AccountStatus {
 	public void setItemPriceIBAN(float itemPriceIBAN)
 	{
 		this.itemPriceIBAN = itemPriceIBAN;
+	}
+
+	/**
+	 * Koszt netto pojedynczego zapytania - status podmiotu na białej liście podatników VAT
+	 * @return cena netto
+	 */
+	public float getItemPriceWhitelist()
+	{
+		return itemPriceWhitelist;
+	}
+
+	/**
+	 * Koszt netto pojedynczego zapytania - status podmiotu na białej liście podatników VAT
+	 * @param itemPriceWhitelist cena netto
+	 */
+	public void setItemPriceWhitelist(float itemPriceWhitelist)
+	{
+		this.itemPriceWhitelist = itemPriceWhitelist;
 	}
 
 	/**
@@ -543,6 +564,24 @@ public class AccountStatus {
 	}
 
 	/**
+	 * Dostęp do funkcji sprawdzających status podmiotu na białej liście podatników VAT
+	 * @return true jeżeli funkcja jest dostępna
+	 */
+	public boolean isFuncGetWhitelistStatus()
+	{
+		return funcGetWhitelistStatus;
+	}
+
+	/**
+	 * Dostęp do funkcji sprawdzających status podmiotu na białej liście podatników VAT
+	 * @param funcGetWhitelistStatus true jeżeli funkcja jest dostępna
+	 */
+	public void setFuncGetWhitelistStatus(boolean funcGetWhitelistStatus)
+	{
+		this.funcGetWhitelistStatus = funcGetWhitelistStatus;
+	}
+
+	/**
 	 * Ilość wykonanych zapytań o dane podmiotu do faktury
 	 * @return ilość zapytań
 	 */
@@ -651,6 +690,24 @@ public class AccountStatus {
 	}
 
 	/**
+	 * Ilość wykonanych zapytań o status podmiotu na białej liście
+	 * @return ilość zapytań
+	 */
+	public int getWhitelistStatusCount()
+	{
+		return whitelistStatusCount;
+	}
+
+	/**
+	 * Ilość wykonanych zapytań o status podmiotu na białej liście
+	 * @param whitelistStatusCount ilość zapytań
+	 */
+	public void setWhitelistStatusCount(int whitelistStatusCount)
+	{
+		this.whitelistStatusCount = whitelistStatusCount;
+	}
+
+	/**
 	 * Całkowita ilość wykonanych zapytań w bieżącym miesiącu
 	 * @return ilość zapytań
 	 */
@@ -680,6 +737,7 @@ public class AccountStatus {
 			+ ", itemPriceInvoice = " + itemPriceInvoice
 			+ ", itemPriceAll = " + itemPriceAll
 			+ ", itemPriceIBAN = " + itemPriceIBAN
+			+ ", itemPriceWhitelist = " + itemPriceWhitelist
 
 			+ ", limit = " + limit
 			+ ", requestDelay = " + requestDelay
@@ -702,6 +760,7 @@ public class AccountStatus {
 			+ ", funcGetVIESData = " + funcGetVIESData
 			+ ", funcGetVATStatus = " + funcGetVATStatus
 			+ ", funcGetIBANStatus = " + funcGetIBANStatus
+			+ ", funcGetWhitelistStatus = " + funcGetWhitelistStatus
 
 			+ ", invoiceDataCount = " + invoiceDataCount
 			+ ", allDataCount = " + allDataCount
@@ -709,6 +768,7 @@ public class AccountStatus {
 			+ ", VATStatusCount = " + vatStatusCount
 			+ ", VIESStatusCount = " + viesStatusCount
 			+ ", IBANStatusCount = " + ibanStatusCount
+			+ ", whitelistStatusCount = " + whitelistStatusCount
 			+ ", totalCount = " + totalCount
 			+ "]";
 	}
