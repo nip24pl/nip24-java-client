@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 NETCAT (www.netcat.pl)
+ * Copyright 2015-2020 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2019 NETCAT (www.netcat.pl)
+ * @copyright 2015-2020 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -34,10 +34,7 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Properties;
+import java.util.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -59,7 +56,7 @@ import org.w3c.dom.Node;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.3.4";
+	public final static String VERSION = "1.3.5";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
@@ -83,6 +80,7 @@ public class NIP24Client {
 	private String key;
 	
 	private String err;
+	private int errcode;
 
 	/**
 	 * Tworzy nowy obiekt klienta
@@ -180,7 +178,7 @@ public class NIP24Client {
 	{
 		try {
 			// clear error
-			err = null;
+			clear();
 			
 	        // validate number and construct path
 			String suffix = null;
@@ -193,12 +191,10 @@ public class NIP24Client {
 			String url = (this.url.toString() + "/check/firm/" + suffix);
 			
 			// prepare request
-			StringBuilder sb = new StringBuilder();
-			
-			byte[] b = get(url, sb);
+			byte[] b = get(url);
 			
 			if (b == null) {
-				err = "Nie udało się nawiązać połączenia z serwisem NIP24";
+				set(Error.CLI_CONNECT);
 				return false;
 			}
 			
@@ -206,20 +202,20 @@ public class NIP24Client {
 			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
 			
 			if (doc == null) {
-				err = "Odpowiedź serwisu NIP24 ma nieprawidłowy format";
+				set(Error.CLI_RESPONSE);
 				return false;
 			}
 			
-			String res = getString(doc, "/result/error/code", null);
+			String code = getString(doc, "/result/error/code", null);
 			
-			if (res != null) {
-				if (res.equals("9")) {
+			if (code != null) {
+				if (code.equals("9")) {
 					// not active
-					err = null;
+					clear();
 					return false;
 				}
 				else {
-					err = getString(doc, "/result/error/description", null);
+					set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
 					return false;
 				}
 			}
@@ -266,7 +262,7 @@ public class NIP24Client {
 	{
 		try {
 			// clear error
-			err = null;
+			clear();
 
 			// validate number and construct path
 			String suffix = null;
@@ -279,12 +275,10 @@ public class NIP24Client {
 			String url = (this.url.toString() + "/get/invoice/" + suffix);
 
 			// prepare request
-			StringBuilder sb = new StringBuilder();
-
-			byte[] b = get(url, sb);
+			byte[] b = get(url);
 
 			if (b == null) {
-				err = "Nie udało się nawiązać połączenia z serwisem NIP24";
+				set(Error.CLI_CONNECT);
 				return null;
 			}
 
@@ -292,14 +286,14 @@ public class NIP24Client {
 			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
 
 			if (doc == null) {
-				err = "Odpowiedź serwisu NIP24 ma nieprawidłowy format";
+				set(Error.CLI_RESPONSE);
 				return null;
 			}
 
-			String res = getString(doc, "/result/error/code", null);
+			String code = getString(doc, "/result/error/code", null);
 
-			if (res != null) {
-				err = getString(doc, "/result/error/description", null);
+			if (code != null) {
+				set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
 				return null;
 			}
 
@@ -376,7 +370,7 @@ public class NIP24Client {
 	{
 		try {
 			// clear error
-			err = null;
+			clear();
 			
 	        // validate number and construct path
 			String suffix = null;
@@ -389,12 +383,10 @@ public class NIP24Client {
 			String url = (this.url.toString() + "/get/all/" + suffix);
 			
 			// prepare request
-			StringBuilder sb = new StringBuilder();
-			
-			byte[] b = get(url, sb);
+			byte[] b = get(url);
 			
 			if (b == null) {
-				err = "Nie udało się nawiązać połączenia z serwisem NIP24";
+				set(Error.CLI_CONNECT);
 				return null;
 			}
 			
@@ -402,14 +394,14 @@ public class NIP24Client {
 			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
 			
 			if (doc == null) {
-				err = "Odpowiedź serwisu NIP24 ma nieprawidłowy format";
+				set(Error.CLI_RESPONSE);
 				return null;
 			}
 			
-			String res = getString(doc, "/result/error/code", null);
+			String code = getString(doc, "/result/error/code", null);
 			
-			if (res != null) {
-				err = getString(doc, "/result/error/description", null);
+			if (code != null) {
+				set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
 				return null;
 			}
 
@@ -472,9 +464,9 @@ public class NIP24Client {
 			ad.setOwnershipFormName(getString(doc, "/result/firm/ownershipForm/name", null));
 			
 			for (int i = 1; ; i++) {
-				String code = getString(doc, "/result/firm/PKDs/PKD[" + i + "]/code", null);
+				String pkdcode = getString(doc, "/result/firm/PKDs/PKD[" + i + "]/code", null);
 				
-				if (code == null) {
+				if (pkdcode == null) {
 					break;
 				}
 				
@@ -483,7 +475,7 @@ public class NIP24Client {
 				
 				PKD pkd = new PKD();
 				
-				pkd.setCode(code);
+				pkd.setCode(pkdcode);
 				pkd.setDescription(descr);
 				pkd.setPrimary(pri.equals("true"));
 				
@@ -529,7 +521,7 @@ public class NIP24Client {
 	{
 		try {
 			// clear error
-			err = null;
+			clear();
 
 	        // validate number and construct path
 			String suffix = null;
@@ -542,12 +534,10 @@ public class NIP24Client {
 			String url = (this.url.toString() + "/get/vies/" + suffix);
 			
 			// prepare request
-			StringBuilder sb = new StringBuilder();
-			
-			byte[] b = get(url, sb);
+			byte[] b = get(url);
 			
 			if (b == null) {
-				err = "Nie udało się nawiązać połączenia z serwisem NIP24";
+				set(Error.CLI_CONNECT);
 				return null;
 			}
 			
@@ -555,14 +545,14 @@ public class NIP24Client {
 			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
 			
 			if (doc == null) {
-				err = "Odpowiedź serwisu NIP24 ma nieprawidłowy format";
+				set(Error.CLI_RESPONSE);
 				return null;
 			}
 			
-			String res = getString(doc, "/result/error/code", null);
+			String code = getString(doc, "/result/error/code", null);
 			
-			if (res != null) {
-				err = getString(doc, "/result/error/description", null);
+			if (code != null) {
+				set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
 				return null;
 			}
 
@@ -613,7 +603,7 @@ public class NIP24Client {
 	{
 		try {
 			// clear error
-			err = null;
+			clear();
 			
 	        // validate number and construct path
 			String suffix = null;
@@ -626,12 +616,10 @@ public class NIP24Client {
 			String url = (this.url.toString()  + "/check/vat/direct/" + suffix);
 			
 			// prepare request
-			StringBuilder sb = new StringBuilder();
-			
-			byte[] b = get(url, sb);
+			byte[] b = get(url);
 			
 			if (b == null) {
-				err = "Nie udało się nawiązać połączenia z serwisem NIP24";
+				set(Error.CLI_CONNECT);
 				return null;
 			}
 			
@@ -639,14 +627,14 @@ public class NIP24Client {
 			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
 			
 			if (doc == null) {
-				err = "Odpowiedź serwisu NIP24 ma nieprawidłowy format";
+				set(Error.CLI_RESPONSE);
 				return null;
 			}
 			
-			String res = getString(doc, "/result/error/code", null);
+			String code = getString(doc, "/result/error/code", null);
 			
-			if (res != null) {
-				err = getString(doc, "/result/error/description", null);
+			if (code != null) {
+				set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
 				return null;
 			}
 
@@ -705,7 +693,7 @@ public class NIP24Client {
 	{
 		try {
 			// clear error
-			err = null;
+			clear();
 
 			// validate number and construct path
 			String suffix = null;
@@ -718,7 +706,7 @@ public class NIP24Client {
 				iban = "PL" + iban;
 
 				if (!IBAN.isValid(iban)) {
-					err = "Numer IBAN jest nieprawidłowy";
+					set(Error.CLI_IBAN);
 					return null;
 				}
 			}
@@ -733,12 +721,10 @@ public class NIP24Client {
 			String url = (this.url.toString()  + "/check/iban/" + suffix + "/" + IBAN.normalize(iban) + "/" + sdf.format(date));
 
 			// prepare request
-			StringBuilder sb = new StringBuilder();
-
-			byte[] b = get(url, sb);
+			byte[] b = get(url);
 
 			if (b == null) {
-				err = "Nie udało się nawiązać połączenia z serwisem NIP24";
+				set(Error.CLI_CONNECT);
 				return null;
 			}
 
@@ -746,14 +732,14 @@ public class NIP24Client {
 			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
 
 			if (doc == null) {
-				err = "Odpowiedź serwisu NIP24 ma nieprawidłowy format";
+				set(Error.CLI_RESPONSE);
 				return null;
 			}
 
-			String res = getString(doc, "/result/error/code", null);
+			String code = getString(doc, "/result/error/code", null);
 
-			if (res != null) {
-				err = getString(doc, "/result/error/description", null);
+			if (code != null) {
+				set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
 				return null;
 			}
 
@@ -813,7 +799,7 @@ public class NIP24Client {
 	{
 		try {
 			// clear error
-			err = null;
+			clear();
 
 			// validate number and construct path
 			String suffix = null;
@@ -826,7 +812,7 @@ public class NIP24Client {
 				iban = "PL" + iban;
 
 				if (!IBAN.isValid(iban)) {
-					err = "Numer IBAN jest nieprawidłowy";
+					set(Error.CLI_IBAN);
 					return null;
 				}
 			}
@@ -841,12 +827,10 @@ public class NIP24Client {
 			String url = (this.url.toString()  + "/check/whitelist/" + suffix + "/" + IBAN.normalize(iban) + "/" + sdf.format(date));
 
 			// prepare request
-			StringBuilder sb = new StringBuilder();
-
-			byte[] b = get(url, sb);
+			byte[] b = get(url);
 
 			if (b == null) {
-				err = "Nie udało się nawiązać połączenia z serwisem NIP24";
+				set(Error.CLI_CONNECT);
 				return null;
 			}
 
@@ -854,14 +838,14 @@ public class NIP24Client {
 			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
 
 			if (doc == null) {
-				err = "Odpowiedź serwisu NIP24 ma nieprawidłowy format";
+				set(Error.CLI_RESPONSE);
 				return null;
 			}
 
-			String res = getString(doc, "/result/error/code", null);
+			String code = getString(doc, "/result/error/code", null);
 
-			if (res != null) {
-				err = getString(doc, "/result/error/description", null);
+			if (code != null) {
+				set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
 				return null;
 			}
 
@@ -915,6 +899,139 @@ public class NIP24Client {
 	}
 
 	/**
+	 * Wyszukiwanie danych w rejestrze VAT
+	 * @param type typ numeru identyfikującego firmę
+	 * @param number numer określonego typu
+	 * @param date dzień, którego ma dotyczyć wyszukiwanie (null - bieżący dzień)
+	 * @return wyszukane dane lub null w przypadku błędu
+	 */
+	public SearchResult searchVATRegistry(Number type, String number, Date date)
+	{
+		try {
+			// clear error
+			clear();
+
+			// validate number and construct path
+			String suffix = null;
+
+			if ((suffix = getPathSuffix(type, number)) == null) {
+				return null;
+			}
+
+			if (date == null) {
+				date = new Date();
+			}
+
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+			// prepare url
+			String url = (this.url.toString()  + "/search/vat/" + suffix + "/" + sdf.format(date));
+
+			// prepare request
+			byte[] b = get(url);
+
+			if (b == null) {
+				set(Error.CLI_CONNECT);
+				return null;
+			}
+
+			// parse response
+			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
+
+			if (doc == null) {
+				set(Error.CLI_RESPONSE);
+				return null;
+			}
+
+			String code = getString(doc, "/result/error/code", null);
+
+			if (code != null) {
+				set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
+				return null;
+			}
+
+			SearchResult sr = new SearchResult();
+
+			sr.setUID(getString(doc, "/result/search/uid", null));
+
+			for (int i = 1; ; i++) {
+				String nip = getString(doc, "/result/search/entities/entity[" + i + "]/nip", null);
+
+				if (nip == null) {
+					break;
+				}
+
+				VATEntity ve = new VATEntity();
+
+				ve.setName(getString(doc, "/result/search/entities/entity[" + i + "]/name", null));
+				ve.setNIP(NIP.normalize(nip));
+				ve.setREGON(REGON.normalize(getString(doc, "/result/search/entities/entity[" + i + "]/regon", null)));
+				ve.setKRS(KRS.normalize(getString(doc, "/result/search/entities/entity[" + i + "]/krs", null)));
+				ve.setResidenceAddress(getString(doc, "/result/search/entities/entity[" + i + "]/residenceAddress", null));
+				ve.setWorkingAddress(getString(doc, "/result/search/entities/entity[" + i + "]/workingAddress", null));
+				ve.setVATStatus(Integer.parseInt(getString(doc, "/result/search/entities/entity[" + i + "]/vat/status", "0")));
+				ve.setVATResult(getString(doc, "/result/search/entities/entity[" + i + "]/vat/result", null));
+
+				getVATPerson(doc, "/result/search/entities/entity[" + i + "]/representatives", ve.getRepresentatives());
+				getVATPerson(doc, "/result/search/entities/entity[" + i + "]/authorizedClerks", ve.getAuthorizedClerks());
+				getVATPerson(doc, "/result/search/entities/entity[" + i + "]/partners", ve.getPartners());
+
+				for (int k = 1; ; k++) {
+					String iban = getString(doc, "/result/search/entities/entity[" + i + "]/ibans/iban[" + k + "]", null);
+
+					if (iban == null) {
+						break;
+					}
+
+					ve.getIBANs().add(iban);
+				}
+
+				ve.setHasVirtualAccounts(getString(doc, "/result/search/entities/entity[" + i + "]/hasVirtualAccounts", "false").equals("true"));
+				ve.setRegistrationLegalDate(getDate(doc, "/result/search/entities/entity[" + i + "]/registrationLegalDate"));
+				ve.setRegistrationDenialDate(getDate(doc, "/result/search/entities/entity[" + i + "]/registrationDenialDate"));
+				ve.setRegistrationDenialBasis(getString(doc, "/result/search/entities/entity[" + i + "]/registrationDenialBasis", null));
+				ve.setRestorationDate(getDate(doc, "/result/search/entities/entity[" + i + "]/restorationDate"));
+				ve.setRestorationBasis(getString(doc, "/result/search/entities/entity[" + i + "]/restorationBasis", null));
+				ve.setRemovalDate(getDate(doc, "/result/search/entities/entity[" + i + "]/removalDate"));
+				ve.setRemovalBasis(getString(doc, "/result/search/entities/entity[" + i + "]/removalBasis", null));
+
+				sr.getResults().add(ve);
+			}
+
+			sr.setID(getString(doc, "/result/search/id", null));
+			sr.setDate(getDate(doc, "/result/search/date"));
+			sr.setSource(getString(doc, "/result/search/source", null));
+
+			return sr;
+		}
+		catch (Exception ignored) {
+		}
+
+		return null;
+	}
+
+	/**
+	 * Wyszukiwanie danych w rejestrze VAT
+	 * @param type typ numeru identyfikującego firmę
+	 * @param number numer określonego typu
+	 * @return wyszukane dane lub null w przypadku błędu
+	 */
+	public SearchResult searchVATRegistry(Number type, String number)
+	{
+		return searchVATRegistry(type, number, null);
+	}
+
+	/**
+	 * Wyszukiwanie danych w rejestrze VAT
+	 * @param nip numer NIP
+	 * @return wyszukane dane lub null w przypadku błędu
+	 */
+	public SearchResult searchVATRegistry(String nip)
+	{
+		return searchVATRegistry(Number.NIP, nip, null);
+	}
+
+	/**
 	 * Sprawdzenie bieżącego stanu konta użytkownika
 	 * @return status konta lub null w przypadku błędu
 	 */
@@ -922,18 +1039,16 @@ public class NIP24Client {
 	{
 		try {
 			// clear error
-			err = null;
+			clear();
 			
 			// prepare url
 			String url = (this.url.toString()  + "/check/account/status");
 			
 			// prepare request
-			StringBuilder sb = new StringBuilder();
-			
-			byte[] b = get(url, sb);
+			byte[] b = get(url);
 			
 			if (b == null) {
-				err = "Nie udało się nawiązać połączenia z serwisem NIP24";
+				set(Error.CLI_CONNECT);
 				return null;
 			}
 			
@@ -941,20 +1056,22 @@ public class NIP24Client {
 			Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(b));
 			
 			if (doc == null) {
-				err = "Odpowiedź serwisu NIP24 ma nieprawidłowy format";
+				set(Error.CLI_RESPONSE);
 				return null;
 			}
 			
-			String res = getString(doc, "/result/error/code", null);
+			String code = getString(doc, "/result/error/code", null);
 			
-			if (res != null) {
-				err = getString(doc, "/result/error/description", null);
+			if (code != null) {
+				set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
 				return null;
 			}
 
 			AccountStatus status = new AccountStatus();
 			
 			status.setUID(getString(doc, "/result/account/uid", null));
+			status.setType(getString(doc, "/result/account/type", null));
+			status.setValidTo(getDateTime(doc, "/result/account/validTo"));
 			status.setBillingPlanName(getString(doc, "/result/account/billingPlan/name", null));
 
 			status.setSubscriptionPrice(Float.parseFloat(getString(doc, "/result/account/billingPlan/subscriptionPrice", "0")));
@@ -964,6 +1081,7 @@ public class NIP24Client {
 			status.setItemPriceAll(Float.parseFloat(getString(doc, "/result/account/billingPlan/itemPriceAllData", "0")));
 			status.setItemPriceIBAN(Float.parseFloat(getString(doc, "/result/account/billingPlan/itemPriceIBANStatus", "0")));
 			status.setItemPriceWhitelist(Float.parseFloat(getString(doc, "/result/account/billingPlan/itemPriceWLStatus", "0")));
+			status.setItemPriceSearchVAT(Float.parseFloat(getString(doc, "/result/account/billingPlan/itemPriceSearchVAT", "0")));
 
 			status.setLimit(Integer.parseInt(getString(doc, "/result/account/billingPlan/limit", "0")));
 			status.setRequestDelay(Integer.parseInt(getString(doc, "/result/account/billingPlan/requestDelay", "0")));
@@ -987,6 +1105,7 @@ public class NIP24Client {
 			status.setFuncGetVATStatus(getString(doc, "/result/account/billingPlan/funcGetVATStatus", "false").equals("true"));
 			status.setFuncGetIBANStatus(getString(doc, "/result/account/billingPlan/funcGetIBANStatus", "false").equals("true"));
 			status.setFuncGetWhitelistStatus(getString(doc, "/result/account/billingPlan/funcGetWLStatus", "false").equals("true"));
+			status.setFuncSearchVAT(getString(doc, "/result/account/billingPlan/funcSearchVAT", "false").equals("true"));
 
 			status.setInvoiceDataCount(Integer.parseInt(getString(doc, "/result/account/requests/invoiceData", "0")));
 			status.setAllDataCount(Integer.parseInt(getString(doc, "/result/account/requests/allData", "0")));
@@ -995,6 +1114,7 @@ public class NIP24Client {
 			status.setVIESStatusCount(Integer.parseInt(getString(doc, "/result/account/requests/viesStatus", "0")));
 			status.setIBANStatusCount(Integer.parseInt(getString(doc, "/result/account/requests/ibanStatus", "0")));
 			status.setWhitelistStatusCount(Integer.parseInt(getString(doc, "/result/account/requests/wlStatus", "0")));
+			status.setSearchVATCount(Integer.parseInt(getString(doc, "/result/account/requests/searchVAT", "0")));
 			status.setTotalCount(Integer.parseInt(getString(doc, "/result/account/requests/total", "0")));
 			
 			return status;
@@ -1006,6 +1126,15 @@ public class NIP24Client {
 	}
 
 	/**
+	 * Ostatni kod błędu
+	 * @return kod błędu
+	 */
+	public int getLastErrorCode()
+	{
+		return errcode;
+	}
+
+	/**
 	 * Ostatni komunikat błędu
 	 * @return opis błędu
 	 */
@@ -1013,7 +1142,36 @@ public class NIP24Client {
 	{
 		return err;
 	}
-	
+
+	/**
+	 * Wyzerowanie informacji o błędzie
+	 */
+	private void clear()
+	{
+		errcode = 0;
+		err = null;
+	}
+
+	/**
+	 * Ustawienie kodu błędu
+	 * @param code kod błędu
+	 * @param err komunikat
+	 */
+	private void set(int code, String err)
+	{
+		errcode = code;
+		this.err = (err == null ? Error.message(code) : err);
+	}
+
+	/**
+	 * Ustawienie kodu błędu
+	 * @param code kod błędu
+	 */
+	private void set(int code)
+	{
+		set(code, null);
+	}
+
 	/**
 	 * Przygotowanie nagłówka z danymi do autoryzacji zapytania
 	 * @param method metoda HTTP
@@ -1068,19 +1226,14 @@ public class NIP24Client {
 	/**
 	 * Metoda HTTP GET
 	 * @param url adres URL
-	 * @param err bufor na komunikaty błędów (może być null)
 	 * @return pobrana odpowiedź lub null
 	 */
-	private byte[] get(String url, StringBuilder err)
+	private byte[] get(String url)
 	{
 		boolean set = false;
 		
 		try {
 			if (url == null || url.length() == 0) {
-				if (err != null) {
-					err.append("Nieprawidłowy URL");
-				}
-				
 				return null;
 			}
 			
@@ -1100,10 +1253,6 @@ public class NIP24Client {
 			Properties headers = auth("GET", u);
 			
 			if (headers == null) {
-				if (err != null) {
-					err.append("Nie udało się przygotować danych do autoryzacji zapytania");
-				}
-
 				return null;
 			}
 
@@ -1139,10 +1288,6 @@ public class NIP24Client {
 				}
 			}
 			else {
-				if (err != null) {
-					err.append("Nieprawidłowy protokół");
-				}
-
 				return null;
 			}
 				
@@ -1163,12 +1308,6 @@ public class NIP24Client {
 			int code = huc.getResponseCode();
 			
 			if (code != 200) {
-				byte[] b = (huc.getErrorStream() != null ? read(huc.getErrorStream(), true) : null);
-				
-				if (err != null && b != null) {
-					err.append(huc.getContentEncoding() != null ? new String(b, huc.getContentEncoding()) : new String(b));
-				}
-				
 				return null;
 			}
 			
@@ -1176,10 +1315,7 @@ public class NIP24Client {
 
 			return out;
 		}
-		catch (Exception e) {
-			if (err != null) {
-				err.append(e.toString());
-			}
+		catch (Exception ignored) {
 		}
 		finally {
     		if (set) {
@@ -1369,6 +1505,36 @@ public class NIP24Client {
 	}
 
 	/**
+	 * Dodaje wartość węzła XML jako obiekt VATPerson do podanej listy
+	 * @param node element bazowy
+	 * @param path wyrażenie XPath wybierające wartość
+	 * @param list lista osób
+	 */
+	private void getVATPerson(Node node, String path, List<VATPerson> list)
+	{
+		try {
+			for (int i = 1; ; i++) {
+				String nip = getString(node, path +  "/person[" + i + "]/nip", null);
+
+				if (nip == null) {
+					break;
+				}
+
+				VATPerson vp = new VATPerson();
+
+				vp.setNIP(NIP.normalize(nip));
+				vp.setCompanyName(getString(node, path + "/person[" + i + "]/companyName", null));
+				vp.setFirstName(getString(node, path + "/person[" + i + "]/firstName", null));
+				vp.setLastName(getString(node, path + "/person[" + i + "]/lastName", null));
+
+				list.add(vp);
+			}
+		}
+		catch (Exception ignored) {
+		}
+	}
+
+	/**
 	 * Pobranie sufiksu ścieżki
 	 * @param type typ numeru identyfikującego firmę
 	 * @param number numer określonego typu
@@ -1380,7 +1546,7 @@ public class NIP24Client {
 	
 		if (type.equals(Number.NIP)) {
 		    if (!NIP.isValid(number)) {
-		        err = "Numer NIP jest nieprawidłowy";
+				set(Error.CLI_NIP);
 		        return null;
 		    }
 		
@@ -1388,7 +1554,7 @@ public class NIP24Client {
 		}
 		else if (type.equals(Number.REGON)) {
 		    if (!REGON.isValid(number)) {
-		        err = "Numer REGON jest nieprawidłowy";
+				set(Error.CLI_REGON);
 		        return null;
 		    }
 		
@@ -1396,7 +1562,7 @@ public class NIP24Client {
 		}
 		else if (type.equals(Number.KRS)) {
 		    if (!KRS.isValid(number)) {
-		        err = "Numer KRS jest nieprawidłowy";
+				set(Error.CLI_KRS);
 		        return null;
 		    }
 		
@@ -1404,14 +1570,26 @@ public class NIP24Client {
 		}
 		else if (type.equals(Number.EUVAT)) {
 		    if (!EUVAT.isValid(number)) {
-		        err = "Numer EU VAT ID jest nieprawidłowy";
+				set(Error.CLI_EUVAT);
 		        return null;
 		    }
 		
 		    path = "euvat/" + EUVAT.normalize(number);
 		}
+		else if (type.equals(Number.IBAN)) {
+			if (!IBAN.isValid(number)) {
+				number = "PL" + number;
+
+				if (!IBAN.isValid(number)) {
+					set(Error.CLI_IBAN);
+					return null;
+				}
+			}
+
+			path = "iban/" + IBAN.normalize(number);
+		}
 		else {
-			err = "Nieprawidłowy typ numeru";
+			set(Error.CLI_NUMBER);
 			return null;
 		}
 		    

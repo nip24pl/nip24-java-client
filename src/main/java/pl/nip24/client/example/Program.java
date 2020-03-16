@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 NETCAT (www.netcat.pl)
+ * Copyright 2015-2020 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2019 NETCAT (www.netcat.pl)
+ * @copyright 2015-2020 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -44,7 +44,7 @@ public class Program {
 			String nip = "7171642051";
 			String nip_eu = "PL" + nip;
 			String account_number = "49154000046458439719826658";
-			
+
 			// Sprawdzenie stanu konta
 			AccountStatus account = nip24.getAccountStatus();
 
@@ -52,7 +52,7 @@ public class Program {
 				System.out.println(account);
 			}
 			else {
-				System.err.println("Błąd: " + nip24.getLastError());
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 			
 			// Sprawdzenie statusu fimy
@@ -66,7 +66,7 @@ public class Program {
 					System.out.println("Firma zawiesiła lub zakoñczyła działalność");
 				}
 				else {
-					System.err.println("Błąd: " + nip24.getLastError());
+					System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 				}
 			}
 			
@@ -74,30 +74,20 @@ public class Program {
 			VATStatus vat = nip24.getVATStatus(Number.NIP, nip);
 			
 			if (vat != null) {
-				System.out.println("NIP: " + vat.getNIP());
-				System.out.println("REGON: " + vat.getREGON());
-				System.out.println("Nazwa firmy: " + vat.getName());
-				System.out.println("Status: " + vat.getStatus());
-				System.out.println("Wynik: " + vat.getResult());
-				System.out.println("Data sprawdzenia: " + vat.getDate());
-				System.out.println("Źródło: " + vat.getSource());
+				System.out.println(vat);
 			}
 			else {
-				System.err.println("Błąd: " + nip24.getLastError());
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 			
 			// Wywołanie metody zwracającej dane do faktury
 			InvoiceData invoice = nip24.getInvoiceData(Number.NIP, nip);
 
 			if (invoice != null) {
-				System.out.println("Nazwa: " + invoice.getName());
-				System.out.println("Imię i nazwisko: " + invoice.getFirstName() + " " + invoice.getLastName());
-				System.out.println("Adres: " + invoice.getPostCode() + " " + invoice.getPostCity() + " "
-					+ invoice.getStreet() + " " + invoice.getStreetNumber());
-				System.out.println("NIP: " + invoice.getNIP());
+				System.out.println(invoice);
 			}
 			else {
-				System.err.println("Błąd: " + nip24.getLastError());
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 			
 			// Wywołanie metody zwracającej szczegółowe dane firmy
@@ -107,7 +97,7 @@ public class Program {
 				System.out.println(all);
 			}
 			else {
-				System.err.println("Błąd: " + nip24.getLastError());
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 			
 			// Wywołanie metody zwracającej dane z systemu VIES
@@ -117,7 +107,7 @@ public class Program {
 				System.out.println(vies);
 			}
 			else {
-				System.err.println("Błąd: " + nip24.getLastError());
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 
 			// Wywołanie metody zwracającej informacje o rachunku bankowym
@@ -127,7 +117,7 @@ public class Program {
 				System.out.println(iban);
 			}
 			else {
-				System.err.println("Błąd: " + nip24.getLastError());
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 
 			// Wywołanie metody sprawdzającej status podmiotu na białej liście podatników VAT
@@ -137,7 +127,17 @@ public class Program {
 				System.out.println(whitelist);
 			}
 			else {
-				System.err.println("Błąd: " + nip24.getLastError());
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			}
+
+			// Wywołanie metody wyszukującej dane w rejestrze VAT
+			SearchResult result = nip24.searchVATRegistry(Number.NIP, nip);
+
+			if (result != null) {
+				System.out.println(result);
+			}
+			else {
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 		}
 		catch (Exception e) {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 NETCAT (www.netcat.pl)
+ * Copyright 2015-2020 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2019 NETCAT (www.netcat.pl)
+ * @copyright 2015-2020 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -38,7 +38,13 @@ public class KRS {
 		}
 
 		krs = krs.trim();
-		krs = String.format("%010d", Integer.parseInt(krs));
+
+		try {
+			krs = String.format("%010d", Integer.parseInt(krs));
+		}
+		catch (Exception ignored) {
+			return null;
+		}
 
 		if (!krs.matches("[0-9]{10}")) {
 			return null;

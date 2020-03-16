@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 NETCAT (www.netcat.pl)
+ * Copyright 2015-2020 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2019 NETCAT (www.netcat.pl)
+ * @copyright 2015-2020 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
 package pl.nip24.client;
+
+import java.util.Date;
 
 /**
  * Dane konta użytkownika
@@ -28,6 +30,8 @@ public class AccountStatus {
 
     protected String uid;
 
+	protected String type;
+	protected Date validTo;
     protected String billingPlanName;
 
     protected float subscriptionPrice;
@@ -37,6 +41,7 @@ public class AccountStatus {
     protected float itemPriceAll;
     protected float itemPriceIBAN;
 	protected float itemPriceWhitelist;
+	protected float itemPriceSearchVAT;
 
     protected int limit;
     protected int requestDelay;
@@ -60,6 +65,7 @@ public class AccountStatus {
     protected boolean funcGetVATStatus;
 	protected boolean funcGetIBANStatus;
 	protected boolean funcGetWhitelistStatus;
+	protected boolean funcSearchVAT;
 
     protected int invoiceDataCount;
     protected int allDataCount;
@@ -68,6 +74,7 @@ public class AccountStatus {
     protected int viesStatusCount;
 	protected int ibanStatusCount;
 	protected int whitelistStatusCount;
+	protected int searchVATCount;
     protected int totalCount;
 	
 	/**
@@ -93,6 +100,42 @@ public class AccountStatus {
 	public void setUID(String uid)
 	{
 		this.uid = uid;
+	}
+
+	/**
+	 * Typ konta
+	 * @return typ konta
+	 */
+	public String getType()
+	{
+		return type;
+	}
+
+	/**
+	 * Typ konta
+	 * @param type typ konta
+	 */
+	public void setType(String type)
+	{
+		this.type = type;
+	}
+
+	/**
+	 * Data ważności konta pre-paid
+	 * @return data ważności
+	 */
+	public Date getValidTo()
+	{
+		return validTo;
+	}
+
+	/**
+	 * Data ważności konta pre-paid
+	 * @param validTo data ważności
+	 */
+	public void setValidTo(Date validTo)
+	{
+		this.validTo = validTo;
 	}
 
 	/**
@@ -237,6 +280,24 @@ public class AccountStatus {
 	public void setItemPriceWhitelist(float itemPriceWhitelist)
 	{
 		this.itemPriceWhitelist = itemPriceWhitelist;
+	}
+
+	/**
+	 * Koszt netto pojedynczego zapytania - wyszukiwanie danych w rejestrze VAT
+	 * @return cena netto
+	 */
+	public float getItemPriceSearchVAT()
+	{
+		return itemPriceSearchVAT;
+	}
+
+	/**
+	 * Koszt netto pojedynczego zapytania - wyszukiwanie danych w rejestrze VAT
+	 * @param itemPriceSearchVAT cena netto
+	 */
+	public void setItemPriceSearchVAT(float itemPriceSearchVAT)
+	{
+		this.itemPriceSearchVAT = itemPriceSearchVAT;
 	}
 
 	/**
@@ -582,6 +643,24 @@ public class AccountStatus {
 	}
 
 	/**
+	 * Dostęp do funkcji wyszukującej dane w rejestrze VAT
+	 * @return true jeżeli funkcja jest dostępna
+	 */
+	public boolean isFuncSearchVAT()
+	{
+		return funcSearchVAT;
+	}
+
+	/**
+	 * Dostęp do funkcji wyszukującej dane w rejestrze VAT
+	 * @param funcSearchVAT true jeżeli funkcja jest dostępna
+	 */
+	public void setFuncSearchVAT(boolean funcSearchVAT)
+	{
+		this.funcSearchVAT = funcSearchVAT;
+	}
+
+	/**
 	 * Ilość wykonanych zapytań o dane podmiotu do faktury
 	 * @return ilość zapytań
 	 */
@@ -708,6 +787,24 @@ public class AccountStatus {
 	}
 
 	/**
+	 * Ilość wykonanych zapytań wyszukiwania danych w rejestrze VAT
+	 * @return ilość zapytań
+	 */
+	public int getSearchVATCount()
+	{
+		return searchVATCount;
+	}
+
+	/**
+	 * Ilość wykonanych zapytań wyszukiwania danych w rejestrze VAT
+	 * @param searchVATCount ilość zapytań
+	 */
+	public void setSearchVATCount(int searchVATCount)
+	{
+		this.searchVATCount = searchVATCount;
+	}
+
+	/**
 	 * Całkowita ilość wykonanych zapytań w bieżącym miesiącu
 	 * @return ilość zapytań
 	 */
@@ -729,6 +826,8 @@ public class AccountStatus {
 	public String toString()
 	{
 		return "AccountStatus: [uid = " + uid
+			+ ", type = " + type
+			+ ", validTo = " + (validTo != null ? validTo.toString() : "")
 			+ ", billingPlanName = " + billingPlanName
 
 			+ ", subscriptionPrice = " + subscriptionPrice
@@ -738,6 +837,7 @@ public class AccountStatus {
 			+ ", itemPriceAll = " + itemPriceAll
 			+ ", itemPriceIBAN = " + itemPriceIBAN
 			+ ", itemPriceWhitelist = " + itemPriceWhitelist
+			+ ", itemPriceSearchVAT = " + itemPriceSearchVAT
 
 			+ ", limit = " + limit
 			+ ", requestDelay = " + requestDelay
@@ -761,6 +861,7 @@ public class AccountStatus {
 			+ ", funcGetVATStatus = " + funcGetVATStatus
 			+ ", funcGetIBANStatus = " + funcGetIBANStatus
 			+ ", funcGetWhitelistStatus = " + funcGetWhitelistStatus
+			+ ", funcSearchVAT = " + funcSearchVAT
 
 			+ ", invoiceDataCount = " + invoiceDataCount
 			+ ", allDataCount = " + allDataCount
@@ -769,6 +870,7 @@ public class AccountStatus {
 			+ ", VIESStatusCount = " + viesStatusCount
 			+ ", IBANStatusCount = " + ibanStatusCount
 			+ ", whitelistStatusCount = " + whitelistStatusCount
+			+ ", searchVATCount = " + searchVATCount
 			+ ", totalCount = " + totalCount
 			+ "]";
 	}

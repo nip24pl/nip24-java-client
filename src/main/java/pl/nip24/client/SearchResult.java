@@ -20,35 +20,30 @@
 
 package pl.nip24.client;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
- * Status firmy w rejestrze VAT
+ * Wynik wyszukiwania danych
  * @author robert
  */
-public class VATStatus {
-	
-    public final static int NOT_REGISTERED = 1;
-    public final static int ACTIVE = 2;
-    public final static int EXEMPTED = 3;
-    
+public class SearchResult {
+
     protected String uid;
 
-    protected String nip;
-	protected String regon;
-	protected String name;
-		
-	protected int status;
-	protected String result;
+    protected List<Object> results;
 
+	protected String id;
 	protected Date date;
 	protected String source;
 
 	/**
 	 * Tworzy nowy obiekt
 	 */
-	public VATStatus()
+	public SearchResult()
 	{
+		results = new ArrayList<>();
 	}
 	
 	/**
@@ -70,93 +65,30 @@ public class VATStatus {
 	}
 
 	/**
-	 * Numer NIP 
-	 * @return numer NIP
+	 * Wyszukane dane
+	 * @return lista wyników
 	 */
-	public String getNIP()
+	public List<Object> getResults()
 	{
-		return nip;
+		return results;
 	}
 
 	/**
-	 * Numer NIP
-	 * @param nip numer NIP
+	 * Identyfikator odpowiedzi z rejestru referencyjnego
+	 * @return identyfikator
 	 */
-	public void setNIP(String nip)
+	public String getID()
 	{
-		this.nip = nip;
+		return id;
 	}
 
 	/**
-	 * Numer REGON
-	 * @return numer REGON
+	 * Identyfikator odpowiedzi z rejestru referencyjnego
+	 * @param id identyfikator
 	 */
-	public String getREGON()
+	public void setID(String id)
 	{
-		return regon;
-	}
-
-	/**
-	 * Numer REGON
-	 * @param regon numer REGON
-	 */
-	public void setREGON(String regon)
-	{
-		this.regon = regon;
-	}
-
-	/**
-	 * Nazwa firmy
-	 * @return nazwa firmy
-	 */
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * Nazwa firmy
-	 * @param name nazwa firmy
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	/**
-	 * Status jako jedna z wartości: NOT_REGISTERED, ACTIVE, EXEMPTED
-	 * @return status firmy
-	 */
-	public int getStatus()
-	{
-		return status;
-	}
-
-	/**
-	 * Status jako jedna z wartości: NOT_REGISTERED, ACTIVE, EXEMPTED
-	 * @param status status firmy
-	 */
-	public void setStatus(int status)
-	{
-		this.status = status;
-	}
-
-	/**
-	 * Tekstowy opis statusu
-	 * @return opis statusu
-	 */
-	public String getResult()
-	{
-		return result;
-	}
-
-	/**
-	 * Tekstowy opis statusu
-	 * @param result opis statusu
-	 */
-	public void setResult(String result)
-	{
-		this.result = result;
+		this.id = id;
 	}
 
 	/**
@@ -198,12 +130,9 @@ public class VATStatus {
 	@Override
 	public String toString()
 	{
-		return "VATStatus: [uid = " + uid
-			+ ", nip = " + nip
-			+ ", regon = " + regon
-			+ ", name = " + name
-			+ ", status = " + status
-			+ ", result = " + result
+		return "SearchResult: [uid = " + uid
+			+ ", results = " + results
+			+ ", id = " + id
 			+ ", date = " + (date != null ? date.toString() : "")
 			+ ", source = " + source
 			+ "]";
