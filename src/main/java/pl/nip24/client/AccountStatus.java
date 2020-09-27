@@ -51,6 +51,7 @@ public class AccountStatus {
     protected boolean terytCodes;
     protected boolean excelAddIn;
 	protected boolean jpkVat;
+	protected boolean cli;
     protected boolean stats;
     protected boolean nipMonitor;
 
@@ -424,6 +425,24 @@ public class AccountStatus {
 	public void setJPKVAT(boolean jpkVat)
 	{
 		this.jpkVat = jpkVat;
+	}
+
+	/**
+	 * Dostęp z aplikacji CLI/CMD
+	 * @return true jeżeli aplikacja jest dostępna
+	 */
+	public boolean isCLI()
+	{
+		return cli;
+	}
+
+	/**
+	 * Dostęp z aplikacji CLI/CMD
+	 * @param cli true jeżeli aplikacja jest dostępna
+	 */
+	public void setCLI(boolean cli)
+	{
+		this.cli = cli;
 	}
 
 	/**
@@ -847,6 +866,7 @@ public class AccountStatus {
 			+ ", terytCodes = " + terytCodes
 			+ ", excelAddIn = " + excelAddIn
 			+ ", jpkVat = " + jpkVat
+			+ ", cli = " + cli
 			+ ", stats = " + stats
 			+ ", NIPMonitor = " + nipMonitor
 

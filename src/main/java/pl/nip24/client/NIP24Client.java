@@ -56,7 +56,7 @@ import org.w3c.dom.Node;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.3.5";
+	public final static String VERSION = "1.3.6";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
@@ -1091,6 +1091,7 @@ public class NIP24Client {
 			status.setTerytCodes(getString(doc, "/result/account/billingPlan/terytCodes", "false").equals("true"));
 			status.setExcelAddIn(getString(doc, "/result/account/billingPlan/excelAddin", "false").equals("true"));
 			status.setJPKVAT(getString(doc, "/result/account/billingPlan/jpkVat", "false").equals("true"));
+			status.setCLI(getString(doc, "/result/account/billingPlan/cli", "false").equals("true"));
 			status.setStats(getString(doc, "/result/account/billingPlan/stats", "false").equals("true"));
 			status.setNIPMonitor(getString(doc, "/result/account/billingPlan/nipMonitor", "false").equals("true"));
 
