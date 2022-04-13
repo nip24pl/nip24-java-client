@@ -1,8 +1,8 @@
 # NIP24 Client for Java
 
-This is the official repository for NIP24 Client for Java: https://nip24.pl
+This is the official repository for NIP24 VIES Client for Java: https://nip24.pl
 
-This library contains validators for common Polish tax numbers like NIP, REGON and KRS. Validators for
+This library contains validators for VIES (VAT EU) and common Polish tax numbers like NIP, REGON and KRS. Validators for
 EU VAT ID and IBAN are also included. After registration at NIP24 Portal this library could be used for various
 on-line validations of Polish and EU companies. Please, visit our web page for more details.
 
