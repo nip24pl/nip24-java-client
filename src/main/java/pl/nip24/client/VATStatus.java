@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2020 NETCAT (www.netcat.pl)
+ * Copyright 2015-2022 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2020 NETCAT (www.netcat.pl)
+ * @copyright 2015-2022 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -41,6 +41,7 @@ public class VATStatus {
 	protected int status;
 	protected String result;
 
+	protected String id;
 	protected Date date;
 	protected String source;
 
@@ -160,6 +161,24 @@ public class VATStatus {
 	}
 
 	/**
+	 * Identyfikator sprawdzenia w systemie MF
+	 * @return identyfikator
+	 */
+	public String getID()
+	{
+		return id;
+	}
+
+	/**
+	 * Identyfikator sprawdzenia w systemie MF
+	 * @param id identyfikator
+	 */
+	public void setID(String id)
+	{
+		this.id = id;
+	}
+
+	/**
 	 * Data sprawdzenia
 	 * @return data sprawdzenia
 	 */
@@ -204,6 +223,7 @@ public class VATStatus {
 			+ ", name = " + name
 			+ ", status = " + status
 			+ ", result = " + result
+			+ ", id = " + id
 			+ ", date = " + (date != null ? date.toString() : "")
 			+ ", source = " + source
 			+ "]";

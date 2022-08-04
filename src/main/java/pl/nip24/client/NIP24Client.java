@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2020 NETCAT (www.netcat.pl)
+ * Copyright 2015-2022 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2020 NETCAT (www.netcat.pl)
+ * @copyright 2015-2022 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -56,7 +56,7 @@ import org.w3c.dom.Node;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.3.6";
+	public final static String VERSION = "1.3.7";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
@@ -647,7 +647,8 @@ public class NIP24Client {
 			
 			vs.setStatus(Integer.parseInt(getString(doc, "/result/vat/status", "0")));
 			vs.setResult(getString(doc, "/result/vat/result", null));
-			
+
+			vs.setID(getString(doc, "/result/vat/id", null));
 			vs.setDate(getDate(doc, "/result/vat/date"));
 			vs.setSource(getString(doc, "/result/vat/source", null));
 			
