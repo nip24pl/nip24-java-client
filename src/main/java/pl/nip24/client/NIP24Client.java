@@ -56,7 +56,7 @@ import org.w3c.dom.Node;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.3.7";
+	public final static String VERSION = "1.3.8";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
