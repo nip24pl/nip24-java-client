@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2022 NETCAT (www.netcat.pl)
+ * Copyright 2015-2023 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,20 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2022 NETCAT (www.netcat.pl)
+ * @copyright 2015-2023 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
 package pl.nip24.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.URL;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import pl.nip24.client.model.KRSData;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -46,9 +39,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import java.io.*;
+import java.net.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Klient serwisu NIP24
@@ -56,7 +52,7 @@ import org.w3c.dom.Node;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.3.8";
+	public final static String VERSION = "1.3.9";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
@@ -1033,6 +1029,83 @@ public class NIP24Client {
 	}
 
 	/**
+	 * Pobranie danych z rejestru KRS
+	 * @param type typ numeru identyfikującego firmę
+	 * @param number numer określonego typu
+	 * @return wyszukane dane lub null w przypadku błędu
+	 */
+	public KRSData getKRSData(Number type, String number)
+	{
+		return getKRSSection(type, number, 0);
+	}
+
+	/**
+	 * Pobranie danych podanej sekcji z rejestru KRS
+	 * @param type typ numeru identyfikującego firmę
+	 * @param number numer określonego typu
+	 * @param section numer sekcji KRS [1-6]
+	 * @return wyszukane dane lub null w przypadku błędu
+	 */
+	public KRSData getKRSSection(Number type, String number, int section)
+	{
+		try {
+			// clear error
+			clear();
+
+			// validate number and construct path
+			String suffix = null;
+
+			if ((suffix = getPathSuffix(type, number)) == null) {
+				return null;
+			}
+
+			if (section < 0 || section > 6) {
+				set(Error.CLI_INPUT);
+				return null;
+			}
+
+			// prepare url
+			String url = (this.url.toString()  + "/get/krs/current/" + suffix + "/" + section);
+
+			// prepare request
+			byte[] b = get(url);
+
+			if (b == null) {
+				set(Error.CLI_CONNECT);
+				return null;
+			}
+
+			// parse response
+			ObjectMapper mapper = getObjectMapper();
+			JsonNode json;
+
+			try {
+				json = mapper.readTree(b);
+
+				if (json == null) {
+					set(Error.CLI_RESPONSE);
+					return null;
+				}
+			} catch (Exception e) {
+				set(Error.CLI_RESPONSE);
+				return null;
+			}
+
+			if (json.has("error")) {
+				set(json.get("error").get("code").asInt(), json.get("error").get("description").asText());
+				return null;
+			}
+
+			return mapper.treeToValue(json.get("krs"), KRSData.class);
+		} catch (Exception e) {
+			set(Error.CLI_EXCEPTION, Error.message(Error.CLI_EXCEPTION) + ": " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	/**
 	 * Sprawdzenie bieżącego stanu konta użytkownika
 	 * @return status konta lub null w przypadku błędu
 	 */
@@ -1172,6 +1245,25 @@ public class NIP24Client {
 	private void set(int code)
 	{
 		set(code, null);
+	}
+
+	/**
+	 * Pobranie mappera do konwersji JSON/Object
+	 * @return obiekt mappera
+	 */
+	private ObjectMapper getObjectMapper()
+	{
+		ObjectMapper mapper = new ObjectMapper();
+
+		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+		mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+		mapper.findAndRegisterModules();
+
+		return mapper;
 	}
 
 	/**

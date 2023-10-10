@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2022 NETCAT (www.netcat.pl)
+ * Copyright 2015-2023 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2022 NETCAT (www.netcat.pl)
+ * @copyright 2015-2023 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
 package pl.nip24.client.example;
 
-import pl.nip24.client.*;
 import pl.nip24.client.Number;
-
-import java.net.URL;
+import pl.nip24.client.*;
+import pl.nip24.client.model.KRSData;
 
 /**
  * Przykładowy program testowy
@@ -44,6 +43,7 @@ public class Program {
 			String nip = "7171642051";
 			String nip_eu = "PL" + nip;
 			String account_number = "49154000046458439719826658";
+			String krs_number = "0000030897";
 
 			// Sprawdzenie stanu konta
 			AccountStatus account = nip24.getAccountStatus();
@@ -139,9 +139,29 @@ public class Program {
 			else {
 				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
+
+			// Wywołanie metody pobierającej pełne dane z KRS
+			KRSData krs = nip24.getKRSData(Number.KRS, krs_number);
+
+			if (krs != null) {
+				System.out.println(krs);
+			}
+			else {
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			}
+
+			// Wywołanie metody pobierającej dane z KRS (tylko dział 1)
+			krs = nip24.getKRSSection(Number.KRS, krs_number, 1);
+
+			if (krs != null) {
+				System.out.println(krs);
+			}
+			else {
+				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			}
 		}
 		catch (Exception e) {
-			System.err.println(e.toString());
+			e.printStackTrace();
 		}
 	}
 }

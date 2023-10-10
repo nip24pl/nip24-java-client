@@ -5,7 +5,7 @@
 	
 	<groupId>pl.nip24</groupId>
 	<artifactId>nip24-client</artifactId>
-	<version>1.3.8</version>
+	<version>1.3.9</version>
 	
 	<name>nip24-java-client</name>
 	<description>NIP24 Service Client for Java</description>
@@ -31,10 +31,24 @@
 			<organizationUrl>https://www.netcat.pl</organizationUrl>
 		</developer>
 	</developers>
+
+	<distributionManagement>
+		<repository>
+			<id>nip24</id>
+			<url>https://www.nip24.pl/maven/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>nip24</id>
+			<url>https://www.nip24.pl/maven/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 	
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<swagger.version>2.2.8</swagger.version>
+		<jackson.version>2.14.2</jackson.version>
 	</properties>
 	
 	<build>
@@ -86,6 +100,27 @@
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 			<version>2.3.1</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 	</dependencies>
 </project>
