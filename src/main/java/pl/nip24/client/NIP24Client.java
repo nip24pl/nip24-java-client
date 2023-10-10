@@ -52,7 +52,7 @@ import java.util.*;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.3.9";
+	public final static String VERSION = "1.4.0";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
@@ -1068,7 +1068,7 @@ public class NIP24Client {
 			String url = (this.url.toString()  + "/get/krs/current/" + suffix + "/" + section);
 
 			// prepare request
-			byte[] b = get(url);
+			byte[] b = get(url, "application/json");
 
 			if (b == null) {
 				set(Error.CLI_CONNECT);
@@ -1268,11 +1268,12 @@ public class NIP24Client {
 
 	/**
 	 * Przygotowanie nagłówka z danymi do autoryzacji zapytania
+     * @param headers obiekt z nagłówkami HTTP
 	 * @param method metoda HTTP
 	 * @param url docelowy adres URL
 	 * @return nagłówki HTTP lub null
 	 */
-	private Properties auth(String method, URL url)
+	private boolean auth(Properties headers, String method, URL url)
 	{
 		try {
 			// prepare auth header
@@ -1291,21 +1292,19 @@ public class NIP24Client {
 			String mac = getMac(str);
 			
 			if (mac == null) {
-				return null;
+				return false;
 			}
 			
 			// prepare request
-			Properties p = new Properties();
-			
-			p.setProperty("Authorization", "MAC id=\"" + id + "\", ts=\"" + ts + "\", nonce=\""
+            headers.setProperty("Authorization", "MAC id=\"" + id + "\", ts=\"" + ts + "\", nonce=\""
 				+ nonce + "\", mac=\"" + mac + "\"");
 			
-			return p;
+			return true;
 		}
 		catch (Exception ignored) {
 		}
 		
-		return null;
+		return false;
 	}
 
 	/**
@@ -1320,9 +1319,10 @@ public class NIP24Client {
 	/**
 	 * Metoda HTTP GET
 	 * @param url adres URL
+     * @param mimetype typ MIME odpowiedzi (application/xml lub application/json)
 	 * @return pobrana odpowiedź lub null
 	 */
-	private byte[] get(String url)
+	private byte[] get(String url, String mimetype)
 	{
 		boolean set = false;
 		
@@ -1343,10 +1343,12 @@ public class NIP24Client {
 				set = true;
 			}
 			
-			// auth
-			Properties headers = auth("GET", u);
-			
-			if (headers == null) {
+			// headers
+			Properties headers = new Properties();
+
+            headers.setProperty("Accept", mimetype);
+
+            if (!auth(headers, "GET", u)) {
 				return null;
 			}
 
@@ -1419,6 +1421,16 @@ public class NIP24Client {
 		
 		return null;
 	}
+
+    /**
+     * Metoda HTTP GET
+     * @param url adres URL
+     * @return pobrana odpowiedź lub null
+     */
+    private byte[] get(String url)
+    {
+        return get(url, "application/xml");
+    }
 
 	/**
 	 * Odczyt zawartosci calego strumienia do tablicy
