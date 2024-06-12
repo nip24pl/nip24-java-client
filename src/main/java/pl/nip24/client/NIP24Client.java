@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2023 NETCAT (www.netcat.pl)
+ * Copyright 2015-2024 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2023 NETCAT (www.netcat.pl)
+ * @copyright 2015-2024 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -34,7 +34,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -52,7 +52,7 @@ import java.util.*;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.4.0";
+	public final static String VERSION = "1.4.1";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
@@ -460,21 +460,44 @@ public class NIP24Client {
 			ad.setOwnershipFormName(getString(doc, "/result/firm/ownershipForm/name", null));
 			
 			for (int i = 1; ; i++) {
-				String pkdcode = getString(doc, "/result/firm/PKDs/PKD[" + i + "]/code", null);
+				String regon = getString(doc, "/result/firm/businessPartners/businessPartner[" + i + "]/regon", null);
 				
-				if (pkdcode == null) {
+				if (regon == null) {
 					break;
 				}
 				
+				String firm = getString(doc, "/result/firm/businessPartners/businessPartner[" + i + "]/firmName", null);
+				String first = getString(doc, "/result/firm/businessPartners/businessPartner[" + i + "]/firstName", null);
+				String second = getString(doc, "/result/firm/businessPartners/businessPartner[" + i + "]/secondName", null);
+				String last = getString(doc, "/result/firm/businessPartners/businessPartner[" + i + "]/lastName", null);
+				
+				BusinessPartner bp = new BusinessPartner();
+				
+				bp.setRegon(regon);
+				bp.setFirmName(firm);
+				bp.setFirstName(first);
+				bp.setSecondName(second);
+				bp.setLastName(last);
+				
+				ad.addBusinessPartner(bp);
+			}
+
+			for (int i = 1; ; i++) {
+				String pkdcode = getString(doc, "/result/firm/PKDs/PKD[" + i + "]/code", null);
+
+				if (pkdcode == null) {
+					break;
+				}
+
 				String descr = getString(doc, "/result/firm/PKDs/PKD[" + i + "]/description", null);
 				String pri = getString(doc, "/result/firm/PKDs/PKD[" + i + "]/primary", "false");
-				
+
 				PKD pkd = new PKD();
-				
+
 				pkd.setCode(pkdcode);
 				pkd.setDescription(descr);
 				pkd.setPrimary(pri.equals("true"));
-				
+
 				ad.addPKD(pkd);
 			}
 
