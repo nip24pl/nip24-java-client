@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2024 NETCAT (www.netcat.pl)
+ * Copyright 2015-2025 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2024 NETCAT (www.netcat.pl)
+ * @copyright 2015-2025 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -52,7 +52,7 @@ import java.util.*;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.4.1";
+	public final static String VERSION = "1.4.2";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
@@ -72,8 +72,8 @@ public class NIP24Client {
 	private WebProxy wp;
 
 	private URL url;
-	private String id;
-	private String key;
+	private final String id;
+	private final String key;
 	
 	private String err;
 	private int errcode;
@@ -491,12 +491,14 @@ public class NIP24Client {
 
 				String descr = getString(doc, "/result/firm/PKDs/PKD[" + i + "]/description", null);
 				String pri = getString(doc, "/result/firm/PKDs/PKD[" + i + "]/primary", "false");
+				String ver = getString(doc, "/result/firm/PKDs/PKD[" + i + "]/version", "false");
 
 				PKD pkd = new PKD();
 
 				pkd.setCode(pkdcode);
 				pkd.setDescription(descr);
 				pkd.setPrimary(pri.equals("true"));
+				pkd.setVersion(ver);
 
 				ad.addPKD(pkd);
 			}

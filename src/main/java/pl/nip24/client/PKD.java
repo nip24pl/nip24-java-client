@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2024 NETCAT (www.netcat.pl)
+ * Copyright 2015-2025 NETCAT (www.netcat.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  * @author NETCAT <firma@netcat.pl>
- * @copyright 2015-2024 NETCAT (www.netcat.pl)
+ * @copyright 2015-2025 NETCAT (www.netcat.pl)
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -30,6 +30,7 @@ public class PKD {
 	private String description;
 	
 	private boolean primary;
+	private String version;
 
 	/**
 	 * Tworzy nowy obiekt
@@ -92,12 +93,31 @@ public class PKD {
 		this.primary = primary;
 	}
 
+	/**
+	 * Wersja kodu PKD
+	 * @return wersja kodu PKD
+	 */
+	public String getVersion()
+	{
+		return version;
+	}
+
+	/**
+	 * Wersja kodu PKD
+	 * @param version wersja kodu PKD
+	 */
+	public void setVersion(String version)
+	{
+		this.version = version;
+	}
+
 	@Override
 	public String toString()
 	{
 		return "PKD: [primary = " + primary
 			+ ", code = " + code
 			+ ", description = " + description
+			+ ", version = " + version
 			+ "]";
 	}
 }

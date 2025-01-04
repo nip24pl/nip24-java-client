@@ -33,6 +33,9 @@ public class PKD {
   @JsonProperty("primary")
   private Boolean primary = null;
 
+  @JsonProperty("version")
+  private String version = null;
+
   public PKD code(String code) {
     this.code = code;
     return this;
@@ -87,6 +90,23 @@ public class PKD {
     this.primary = primary;
   }
 
+  public PKD version(String version) {
+    this.version = version;
+    return this;
+  }
+
+  /**
+   * Get version
+   * @return version
+   **/
+  @Schema(required = true, description = "")
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -99,12 +119,13 @@ public class PKD {
     PKD PKD = (PKD) o;
     return Objects.equals(this.code, PKD.code) &&
         Objects.equals(this.description, PKD.description) &&
-        Objects.equals(this.primary, PKD.primary);
+        Objects.equals(this.primary, PKD.primary) &&
+        Objects.equals(this.version, PKD.version);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(code, description, primary);
+    return Objects.hash(code, description, primary, version);
   }
 
 
@@ -116,6 +137,7 @@ public class PKD {
     sb.append("    code: ").append(toIndentedString(code)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    primary: ").append(toIndentedString(primary)).append("\n");
+    sb.append("    version: ").append(toIndentedString(version)).append("\n");
     sb.append("}");
     return sb.toString();
   }
