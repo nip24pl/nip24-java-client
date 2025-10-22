@@ -52,7 +52,7 @@ import java.util.*;
  */
 public class NIP24Client {
 	
-	public final static String VERSION = "1.4.2";
+	public final static String VERSION = "1.4.4";
 
 	public final static String PRODUCTION_URL = "https://www.nip24.pl/api";
 	public final static String TEST_URL = "https://www.nip24.pl/api-test";
@@ -99,12 +99,11 @@ public class NIP24Client {
 
 			this.sr = SecureRandom.getInstance("SHA1PRNG");
 			
-			String seed = (System.getProperties().toString() + new Date().toString() + this.hashCode()
+			String seed = (System.getProperties().toString() + new Date() + this.hashCode()
 				+ url + id + key);
 			
 			this.sr.setSeed(seed.getBytes());
-		}
-		catch (NoSuchAlgorithmException ignored) {
+		} catch (NoSuchAlgorithmException ignored) {
 		}
 	}
 	
@@ -165,10 +164,10 @@ public class NIP24Client {
 	}
 	
 	/**
-	 * Sprawdzenie czy firma prowadzi aktywną działalność
+	 * Sprawdzenie, czy firma prowadzi aktywną działalność
 	 * @param type typ numeru identyfikującego firmę
 	 * @param number numer określonego typu
-	 * @return true jeżeli firma prowadzi aktywną działalność, false jeżeli firma zakończyła działalność
+	 * @return true, jeżeli firma prowadzi aktywną działalność, false, jeżeli firma zakończyła działalność
 	 */
 	public boolean isActive(Number type, String number)
 	{
@@ -177,7 +176,7 @@ public class NIP24Client {
 			clear();
 			
 	        // validate number and construct path
-			String suffix = null;
+			String suffix;
 			
 	        if ((suffix = getPathSuffix(type, number)) == null) {
 	            return false;
@@ -208,27 +207,24 @@ public class NIP24Client {
 				if (code.equals("9")) {
 					// not active
 					clear();
-					return false;
-				}
-				else {
+                } else {
 					set(Integer.parseInt(code), getString(doc, "/result/error/description", null));
-					return false;
-				}
-			}
+                }
+                return false;
+            }
 			
 			// active
 			return true;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 		
 		return false;
 	}
 
 	/**
-	 * Sprawdzenie czy firma prowadzi aktywną działalność
+	 * Sprawdzenie, czy firma prowadzi aktywną działalność
 	 * @param nip numer NIP
-	 * @return true jeżeli firma prowadzi aktywną działalność, false jeżeli firma zakończyła działalność
+	 * @return true, jeżeli firma prowadzi aktywną działalność, false, jeżeli firma zakończyła działalność
 	 */
 	public boolean isActive(String nip)
 	{
@@ -261,7 +257,7 @@ public class NIP24Client {
 			clear();
 
 			// validate number and construct path
-			String suffix = null;
+			String suffix;
 
 			if ((suffix = getPathSuffix(type, number)) == null) {
 				return null;
@@ -314,8 +310,7 @@ public class NIP24Client {
 			id.setWWW(getString(doc, "/result/firm/www", null));
 
 			return id;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 
 		return null;
@@ -369,7 +364,7 @@ public class NIP24Client {
 			clear();
 			
 	        // validate number and construct path
-			String suffix = null;
+			String suffix;
 			
 	        if ((suffix = getPathSuffix(type, number)) == null) {
 	            return null;
@@ -439,6 +434,8 @@ public class NIP24Client {
 			ad.setHoldDate(getDateTime(doc, "/result/firm/holdDate"));
 			ad.setRenevalDate(getDateTime(doc, "/result/firm/renevalDate"));
 			ad.setLastUpdateDate(getDateTime(doc, "/result/firm/lastUpdateDate"));
+            ad.setBankruptcyDate(getDateTime(doc, "/result/firm/bankruptcyDate"));
+            ad.setEndOfBankruptcyProceedingsDate(getDateTime(doc, "/result/firm/endOfBankruptcyProceedingsDate"));
 			ad.setEndDate(getDateTime(doc, "/result/firm/endDate"));
 			
 			ad.setRegistryEntityCode(getString(doc, "/result/firm/registryEntity/code", null));
@@ -504,8 +501,7 @@ public class NIP24Client {
 			}
 
 			return ad;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 		
 		return null;
@@ -545,7 +541,7 @@ public class NIP24Client {
 			clear();
 
 	        // validate number and construct path
-			String suffix = null;
+			String suffix;
 			
 	        if ((suffix = getPathSuffix(Number.EUVAT, euvat)) == null) {
 	            return null;
@@ -594,8 +590,7 @@ public class NIP24Client {
 			vies.setSource(getString(doc, "/result/vies/source", null));
 
 			return vies;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 		
 		return null;
@@ -627,7 +622,7 @@ public class NIP24Client {
 			clear();
 			
 	        // validate number and construct path
-			String suffix = null;
+			String suffix;
 			
 	        if ((suffix = getPathSuffix(type, number)) == null) {
 	            return null;
@@ -674,8 +669,7 @@ public class NIP24Client {
 			vs.setSource(getString(doc, "/result/vat/source", null));
 			
 			return vs;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 		
 		return null;
@@ -718,7 +712,7 @@ public class NIP24Client {
 			clear();
 
 			// validate number and construct path
-			String suffix = null;
+			String suffix;
 
 			if ((suffix = getPathSuffix(type, number)) == null) {
 				return null;
@@ -779,8 +773,7 @@ public class NIP24Client {
 			is.setSource(getString(doc, "/result/iban/source", null));
 
 			return is;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 
 		return null;
@@ -824,7 +817,7 @@ public class NIP24Client {
 			clear();
 
 			// validate number and construct path
-			String suffix = null;
+			String suffix;
 
 			if ((suffix = getPathSuffix(type, number)) == null) {
 				return null;
@@ -890,8 +883,7 @@ public class NIP24Client {
 			wl.setSource(getString(doc, "/result/whitelist/source", null));
 
 			return wl;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 
 		return null;
@@ -934,7 +926,7 @@ public class NIP24Client {
 			clear();
 
 			// validate number and construct path
-			String suffix = null;
+			String suffix;
 
 			if ((suffix = getPathSuffix(type, number)) == null) {
 				return null;
@@ -1025,8 +1017,7 @@ public class NIP24Client {
 			sr.setSource(getString(doc, "/result/search/source", null));
 
 			return sr;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 
 		return null;
@@ -1078,7 +1069,7 @@ public class NIP24Client {
 			clear();
 
 			// validate number and construct path
-			String suffix = null;
+			String suffix;
 
 			if ((suffix = getPathSuffix(type, number)) == null) {
 				return null;
@@ -1124,7 +1115,6 @@ public class NIP24Client {
 			return mapper.treeToValue(json.get("krs"), KRSData.class);
 		} catch (Exception e) {
 			set(Error.CLI_EXCEPTION, Error.message(Error.CLI_EXCEPTION) + ": " + e.getMessage());
-			e.printStackTrace();
 		}
 
 		return null;
@@ -1218,8 +1208,7 @@ public class NIP24Client {
 			status.setTotalCount(Integer.parseInt(getString(doc, "/result/account/requests/total", "0")));
 			
 			return status;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 		
 		return null;
@@ -1325,8 +1314,7 @@ public class NIP24Client {
 				+ nonce + "\", mac=\"" + mac + "\"");
 			
 			return true;
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 		
 		return false;
@@ -1352,14 +1340,14 @@ public class NIP24Client {
 		boolean set = false;
 		
 		try {
-			if (url == null || url.length() == 0) {
+			if (url == null || url.isEmpty()) {
 				return null;
 			}
 			
 			URL u = new URL(url);
 			Proxy p = null;
 			
-			byte[] out = null;
+			byte[] out;
 
 			if (wp != null && !wp.isExcluded(u.getHost())) {
 				p = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(wp.getHost(), wp.getPort()));
@@ -1380,14 +1368,13 @@ public class NIP24Client {
 			userAgent(headers);
 
 			// connect
-			HttpURLConnection huc = null;
+			HttpURLConnection huc;
 
 			if (url.toLowerCase().startsWith("https://")) {
 				// https
 				if (p != null) {
 					huc = (HttpsURLConnection)u.openConnection(p);
-				}
-				else {
+				} else {
 					huc = (HttpsURLConnection)u.openConnection();
 				}
 	
@@ -1398,17 +1385,14 @@ public class NIP24Client {
 				if (ssf != null) {
 					((HttpsURLConnection)huc).setSSLSocketFactory(ssf);
 				}
-			}
-			else if (url.toLowerCase().startsWith("http://")) {
+			} else if (url.toLowerCase().startsWith("http://")) {
 				// http
 				if (p != null) {
 					huc = (HttpURLConnection)u.openConnection(p);
-				}
-				else {
+				} else {
 					huc = (HttpURLConnection)u.openConnection();
 				}
-			}
-			else {
+			} else {
 				return null;
 			}
 				
@@ -1435,10 +1419,8 @@ public class NIP24Client {
 			out = read(huc.getInputStream(), true);
 
 			return out;
-		}
-		catch (Exception ignored) {
-		}
-		finally {
+		} catch (Exception ignored) {
+		} finally {
     		if (set) {
     			Authenticator.setDefault(null);
     		}
@@ -1483,7 +1465,6 @@ public class NIP24Client {
 		throws IOException
 	{
 		byte[] b = new byte[8192];
-
 		int read;
 
 		while ((read = in.read(b)) > 0) {
@@ -1526,8 +1507,7 @@ public class NIP24Client {
 			byte[] b = m.doFinal(str.getBytes());
 			
 			return DatatypeConverter.printBase64Binary(b);
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 		
 		return null;
@@ -1543,8 +1523,7 @@ public class NIP24Client {
 	{
 		try {
 			return (Node)xp.evaluate(path, node, XPathConstants.NODE);
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 		
 		return null;
@@ -1603,8 +1582,7 @@ public class NIP24Client {
 			Calendar c = DatatypeConverter.parseDateTime(val);
 			
 			return c.getTime();
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 
 		return null;
@@ -1628,8 +1606,7 @@ public class NIP24Client {
 			Calendar c = DatatypeConverter.parseDate(val);
 			
 			return c.getTime();
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 
 		return null;
@@ -1660,8 +1637,7 @@ public class NIP24Client {
 
 				list.add(vp);
 			}
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -1673,7 +1649,7 @@ public class NIP24Client {
 	 */
 	private String getPathSuffix(Number type, String number)
 	{
-	    String path = "";
+	    String path;
 	
 		if (type.equals(Number.NIP)) {
 		    if (!NIP.isValid(number)) {
@@ -1682,32 +1658,28 @@ public class NIP24Client {
 		    }
 		
 		    path = "nip/" + NIP.normalize(number);
-		}
-		else if (type.equals(Number.REGON)) {
+		} else if (type.equals(Number.REGON)) {
 		    if (!REGON.isValid(number)) {
 				set(Error.CLI_REGON);
 		        return null;
 		    }
 		
 		    path = "regon/" + REGON.normalize(number);
-		}
-		else if (type.equals(Number.KRS)) {
+		} else if (type.equals(Number.KRS)) {
 		    if (!KRS.isValid(number)) {
 				set(Error.CLI_KRS);
 		        return null;
 		    }
 		
 		    path = "krs/" + KRS.normalize(number);
-		}
-		else if (type.equals(Number.EUVAT)) {
+		} else if (type.equals(Number.EUVAT)) {
 		    if (!EUVAT.isValid(number)) {
 				set(Error.CLI_EUVAT);
 		        return null;
 		    }
 		
 		    path = "euvat/" + EUVAT.normalize(number);
-		}
-		else if (type.equals(Number.IBAN)) {
+		} else if (type.equals(Number.IBAN)) {
 			if (!IBAN.isValid(number)) {
 				number = "PL" + number;
 
@@ -1718,8 +1690,7 @@ public class NIP24Client {
 			}
 
 			path = "iban/" + IBAN.normalize(number);
-		}
-		else {
+		} else {
 			set(Error.CLI_NUMBER);
 			return null;
 		}

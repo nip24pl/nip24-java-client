@@ -38,7 +38,7 @@ public class EUVAT {
 	 */
 	public static String normalize(String number)
 	{
-		if (number == null || number.length() == 0) {
+		if (number == null || number.isEmpty()) {
 			return null;
 		}
 
@@ -54,9 +54,9 @@ public class EUVAT {
 	}
 
 	/**
-	 * Sprawdza poprawnoœæ numeru EU VAT
+	 * Sprawdza poprawność numeru EU VAT
 	 * @param number numer EU VAT
-	 * @return true jeżeli podany numer jest prawidłowy
+	 * @return true, jeżeli podany numer jest prawidłowy
 	 */
 	public static boolean isValid(String number)
 	{

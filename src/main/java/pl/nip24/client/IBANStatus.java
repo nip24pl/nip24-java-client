@@ -121,7 +121,7 @@ public class IBANStatus {
 
 	/**
 	 * Status rachunku
-	 * @return status rachunku (true - rachunek powiązany z podatnikiem, false - nie powiązany)
+	 * @return status rachunku (true - rachunek powiązany z podatnikiem, false - niepowiązany)
 	 */
 	public boolean isValid()
 	{
@@ -130,7 +130,7 @@ public class IBANStatus {
 
 	/**
 	 * Status rachunku
-	 * @param valid status rachunku (true - rachunek powiązany z podatnikiem, false - nie powiązany)
+	 * @param valid status rachunku (true - rachunek powiązany z podatnikiem, false - niepowiązany)
 	 */
 	public void setValid(boolean valid)
 	{

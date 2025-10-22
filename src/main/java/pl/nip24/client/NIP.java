@@ -33,7 +33,7 @@ public class NIP {
 	 */
 	public static String normalize(String nip)
 	{
-		if (nip == null || nip.length() == 0) {
+		if (nip == null || nip.isEmpty()) {
 			return null;
 		}
 
@@ -50,7 +50,7 @@ public class NIP {
 	/**
 	 * Sprawdza poprawność numeru NIP
 	 * @param nip numer NIP
-	 * @return true jeżeli podany numer jest prawidłowy
+	 * @return true, jeżeli podany numer jest prawidłowy
 	 */
 	public static boolean isValid(String nip)
 	{
@@ -58,7 +58,7 @@ public class NIP {
 			return false;
 		}
 
-		int w[] = {
+		int[] w = {
 			6, 5, 7, 2, 3, 4, 5, 6, 7
 		};
 

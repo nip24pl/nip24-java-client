@@ -50,23 +50,20 @@ public class Program {
 
 			if (account != null) {
 				System.out.println(account);
+			} else {
+				System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
-			}
-			
-			// Sprawdzenie statusu fimy
+
+            // Sprawdzenie statusu fimy
 			boolean active = nip24.isActive(Number.NIP, nip);
 
 			if (active) {
 				System.out.println("Firma prowadzi aktywną działalność");
-			}
-			else {
+			} else {
 				if (nip24.getLastError() == null) {
 					System.out.println("Firma zawiesiła lub zakoñczyła działalność");
-				}
-				else {
-					System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+				} else {
+					System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 				}
 			}
 			
@@ -75,9 +72,8 @@ public class Program {
 			
 			if (vat != null) {
 				System.out.println(vat);
-			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			} else {
+				System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 			
 			// Wywołanie metody zwracającej dane do faktury
@@ -85,9 +81,8 @@ public class Program {
 
 			if (invoice != null) {
 				System.out.println(invoice);
-			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			} else {
+				System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 			
 			// Wywołanie metody zwracającej szczegółowe dane firmy
@@ -95,9 +90,8 @@ public class Program {
 
 			if (all != null) {
 				System.out.println(all);
-			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			} else {
+				System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 			
 			// Wywołanie metody zwracającej dane z systemu VIES
@@ -105,9 +99,8 @@ public class Program {
 
 			if (vies != null) {
 				System.out.println(vies);
-			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			} else {
+				System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 
 			// Wywołanie metody zwracającej informacje o rachunku bankowym
@@ -115,9 +108,8 @@ public class Program {
 
 			if (iban != null) {
 				System.out.println(iban);
-			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			} else {
+				System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 
 			// Wywołanie metody sprawdzającej status podmiotu na białej liście podatników VAT
@@ -125,9 +117,8 @@ public class Program {
 
 			if (whitelist != null) {
 				System.out.println(whitelist);
-			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			} else {
+				System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 
 			// Wywołanie metody wyszukującej dane w rejestrze VAT
@@ -135,33 +126,29 @@ public class Program {
 
 			if (result != null) {
 				System.out.println(result);
-			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
-			}
-
-			// Wywołanie metody pobierającej pełne dane z KRS
-			KRSData krs = nip24.getKRSData(Number.KRS, krs_number);
-
-			if (krs != null) {
-				System.out.println(krs);
-			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+			} else {
+				System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
 
-			// Wywołanie metody pobierającej dane z KRS (tylko dział 1)
+            // Wywołanie metody pobierającej pełne dane z KRS
+            KRSData krs = nip24.getKRSData(Number.KRS, krs_number);
+
+            if (krs != null) {
+                System.out.println(krs);
+            } else {
+                System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
+            }
+
+            // Wywołanie metody pobierającej dane z KRS (tylko dział 1)
 			krs = nip24.getKRSSection(Number.KRS, krs_number, 1);
 
 			if (krs != null) {
 				System.out.println(krs);
+			} else {
+				System.err.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
 			}
-			else {
-				System.out.println("Błąd: " + nip24.getLastError() + " (kod: " + nip24.getLastErrorCode() + ")");
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+            System.err.println("Wyjątek: " + e);
 		}
 	}
 }

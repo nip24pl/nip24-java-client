@@ -124,7 +124,7 @@ public class Error {
 	}
 
 	/**
-	 * Pobranie komunikatu błędu
+	 * Pobranie komunikatu o błędzie
 	 * @param code kod błędu
 	 * @return komunikat
 	 */

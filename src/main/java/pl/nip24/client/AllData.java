@@ -51,6 +51,8 @@ public class AllData extends InvoiceData {
 	protected Date holdDate;
 	protected Date renevalDate;
 	protected Date lastUpdateDate;
+    protected Date bankruptcyDate;
+    protected Date endOfBankruptcyProceedingsDate;
 	protected Date endDate;
 	
 	protected String registryEntityCode;
@@ -407,7 +409,43 @@ public class AllData extends InvoiceData {
 		this.lastUpdateDate = lastUpdateDate;
 	}
 
-	/**
+    /**
+     * Data orzeczenia o upadłości
+     * @return data
+     */
+    public Date getBankruptcyDate()
+    {
+        return bankruptcyDate;
+    }
+
+    /**
+     * Data orzeczenia o upadłości
+     * @param bankruptcyDate data
+     */
+    public void setBankruptcyDate(Date bankruptcyDate)
+    {
+        this.bankruptcyDate = bankruptcyDate;
+    }
+
+    /**
+     * Data zakończenia postępowania upadłościowego
+     * @return data
+     */
+    public Date getEndOfBankruptcyProceedingsDate()
+    {
+        return endOfBankruptcyProceedingsDate;
+    }
+
+    /**
+     * Data zakończenia postępowania upadłościowego
+     * @param endOfBankruptcyProceedingsDate data
+     */
+    public void setEndOfBankruptcyProceedingsDate(Date endOfBankruptcyProceedingsDate)
+    {
+        this.endOfBankruptcyProceedingsDate = endOfBankruptcyProceedingsDate;
+    }
+
+    /**
 	 * Data zakończenia działalności
 	 * @return data
 	 */
@@ -716,6 +754,8 @@ public class AllData extends InvoiceData {
 			+ ", holdDate = " + holdDate
 			+ ", renevalDate = " + renevalDate
 			+ ", lastUpdateDate = " + lastUpdateDate
+            + ", bankruptcyDate = " + bankruptcyDate
+            + ", endOfBankruptcyProceedingsDate = " + endOfBankruptcyProceedingsDate
 			+ ", endDate = " + endDate
 
 			+ ", registryEntityCode = " + registryEntityCode

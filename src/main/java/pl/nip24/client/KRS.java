@@ -33,7 +33,7 @@ public class KRS {
 	 */
 	public static String normalize(String krs)
 	{
-		if (krs == null || krs.length() == 0) {
+		if (krs == null || krs.isEmpty()) {
 			return null;
 		}
 
@@ -56,14 +56,10 @@ public class KRS {
 	/**
 	 * Sprawdza poprawność numeru KRS
 	 * @param krs numer KRS
-	 * @return true jeżeli podany numer jest prawidłowy
+	 * @return true, jeżeli podany numer jest prawidłowy
 	 */
 	public static boolean isValid(String krs)
 	{
-		if ((krs = normalize(krs)) == null) {
-			return false;
-		}
-
-		return true;
-	}
+        return (normalize(krs) != null);
+    }
 }
